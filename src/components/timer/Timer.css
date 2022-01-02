@@ -1,0 +1,23 @@
+#mainContent {
+  max-height: 40rem;
+  max-width: 40rem;
+  margin: auto;
+  -ms-transform: translateY(50%);
+  transform: translateY(50%);
+  border-radius: 2rem;
+}
+
+.content{
+    font-size: 5rem;
+}
+
+.input{
+    width: 40%;
+    text-align: center;
+    order: 5;
+}
+
+.buttons{
+    display:flex;
+    justify-content: space-evenly;
+}
