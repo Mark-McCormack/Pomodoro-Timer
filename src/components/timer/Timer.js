@@ -30,7 +30,8 @@ function Timer() {
   };
 
   const stopTimer = () => {
-    clearInterval(timer);
+    setSeconds(1);
+    openModal();
   };
 
   const updateSeconds = (event) => {
