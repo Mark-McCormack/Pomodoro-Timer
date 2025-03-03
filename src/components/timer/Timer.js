@@ -1,35 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./Timer.css";
 
 function Timer() {
-  let timer;
-
+  const timerRef = useRef(null);
   const [inputSeconds, setInputSeconds] = useState(0);
-  const [inputMinutes, setInputMinutes] = useState(0);
-  const [seconds, setSeconds] = useState(2);
+  const [inputMinutes, setInputMinutes] = useState(15);
+  const [seconds, setSeconds] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   function startTimer() {
-    // Decrease Time Every Second by 1 Second
-    timer = setInterval(() => {
-      setSeconds((seconds) => {
-        seconds -= 1;
+    if (timerRef.current) return; // Prevent multiple intervals
 
-        // If Time is Up, Stop the Timer and Open A Modal
-        if (seconds <= 0) {
-          clearInterval(timer);
+    setIsPaused(false);
+    timerRef.current = setInterval(() => {
+      setSeconds((prevSeconds) => {
+        if (prevSeconds <= 1) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
           openModal();
+          return 0;
         }
-
-        return seconds;
+        return prevSeconds - 1;
       });
     }, 1000);
   }
 
+  function pauseTimer() {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+      setIsPaused(true);
+    }
+  }
+
   const setTimer = () => {
-    setSeconds(inputSeconds - inputMinutes * 60);
+    setSeconds(inputMinutes * 60 + parseInt(inputSeconds));
   };
 
   const stopTimer = () => {
+    clearInterval(timerRef.current);
+    timerRef.current = null;
     setSeconds(1);
     openModal();
   };
@@ -42,6 +52,10 @@ function Timer() {
     setInputMinutes(event.target.value);
   };
 
+  useEffect(() => {
+    setTimer();
+  }, []);
+
   return (
     <div>
       <div id="mainContent" className="card">
@@ -53,35 +67,22 @@ function Timer() {
           </div>
           <div className="controls">
             <div className="field-group flex">
-              <input
-                className="input"
-                type="text"
-                value={inputMinutes}
-                onChange={updateMinutes}
-              />
+              <input className="input" type="text" value={inputMinutes} onChange={updateMinutes} />
               &nbsp;
-              <input
-                className="input"
-                type="text"
-                value={inputSeconds}
-                onChange={updateSeconds}
-              />
+              <input className="input" type="text" value={inputSeconds} onChange={updateSeconds} />
             </div>
             <br></br>
             <div className="buttons">
               <button className="button is-link is-focused" onClick={setTimer}>
                 Set Timer
               </button>
-              <button
-                className="button is-primary is-focused"
-                onClick={startTimer}
-              >
-                Start Timer
+              <button className="button is-primary is-focused" onClick={startTimer}>
+                {isPaused ? "Resume Timer" : "Start Timer"}
               </button>
-              <button
-                className="button is-danger is-focused"
-                onClick={stopTimer}
-              >
+              <button className="button is-warning is-focused" onClick={pauseTimer}>
+                Pause Timer
+              </button>
+              <button className="button is-danger is-focused" onClick={stopTimer}>
                 Stop Timer
               </button>
             </div>
@@ -105,11 +106,7 @@ function Timer() {
             </div>
           </div>
         </div>
-        <button
-          className="modal-close is-large"
-          aria-label="close"
-          onClick={closeModal}
-        ></button>
+        <button className="modal-close is-large" aria-label="close" onClick={closeModal}></button>
       </div>
     </div>
   );
